@@ -8,7 +8,7 @@ import { HeroSection } from "@/components/landing/hero"
 
 export default async function HomePage() {
   return (
-    <div className="pb-20">
+    <div className="flex min-h-screen flex-col">
       <HeroSection />
     </div>
   )
