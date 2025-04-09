@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/utils"
 import { Check, Edit, Home, Mail, Phone, User } from "lucide-react"
 import { format } from "date-fns"
 import Link from "next/link"
+import Image from "next/image"
 
 interface BookingSummaryStepProps {
   bookingData: {
@@ -62,9 +63,18 @@ export function BookingSummaryStep({
           <Check className="text-primary size-6" />
         </div>
         <h2 className="mb-2 text-2xl font-bold">Booking Confirmed!</h2>
+        <div className="mb-4 flex justify-center">
+          <Image
+            src="/images/6974955a-8165-45c3-9791-90fd02133fdd.png"
+            alt="Our Logo"
+            width={120}
+            height={30}
+            className="h-auto object-contain"
+          />
+        </div>
         <p className="text-muted-foreground mb-2">
-          Your reservation at Casa Alpaca has been confirmed. A confirmation
-          email has been sent to {bookingData.guestInfo.email}.
+          Your reservation has been confirmed. A confirmation email has been
+          sent to {bookingData.guestInfo.email}.
         </p>
         <p className="font-medium">
           Confirmation Code:{" "}

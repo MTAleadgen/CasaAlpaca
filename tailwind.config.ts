@@ -23,7 +23,7 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#5CA496",
           foreground: "hsl(var(--primary-foreground))"
         },
         secondary: {
@@ -59,6 +59,13 @@ const config = {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))"
+        },
+        casaalpaca: {
+          teal: "#5CA496",
+          coral: "#E27D60",
+          dark: "#1A1A1A",
+          light: "#F9F9F9",
+          beige: "#F8F4E3"
         }
       },
       borderRadius: {

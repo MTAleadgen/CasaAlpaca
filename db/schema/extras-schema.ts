@@ -36,7 +36,6 @@ export const extrasTable = pgTable(
 export type InsertExtra = typeof extrasTable.$inferInsert
 export type SelectExtra = typeof extrasTable.$inferSelect
 
-// Relations - can be expanded later for booking-extras relationships
-export const extrasRelations = relations(extrasTable, ({ many }) => ({
-  // Can be expanded when booking schema is implemented
-}))
+// Note: We're not defining the relation to bookingExtras here to avoid circular references
+// The relation is defined in bookingExtrasRelations in bookings-schema.ts
+export const extrasRelations = relations(extrasTable, ({ many }) => ({}))

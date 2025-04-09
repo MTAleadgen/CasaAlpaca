@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { PropertyGallery } from "@/components/ui/property-gallery"
 import {
   Bed,
   Coffee,
@@ -21,12 +22,61 @@ export const metadata = {
 }
 
 export default function PropertyPage() {
+  // Property images from the provided collection
+  const propertyImages = [
+    {
+      src: "/images/casa-alpaca-hero.jpg",
+      alt: "Casa Alpaca - Front View of Brick Cottage"
+    },
+    {
+      src: "/images/casa-alpaca-living.jpg",
+      alt: "Casa Alpaca - Cozy Living Room with Fireplace"
+    },
+    {
+      src: "/images/casa-alpaca-bedroom.jpg",
+      alt: "Casa Alpaca - Primary Bedroom with Blue Walls"
+    },
+    {
+      src: "/images/casa-alpaca-bathroom.jpg",
+      alt: "Casa Alpaca - Modern Bathroom with Subway Tile"
+    },
+    {
+      src: "/images/casa-alpaca-dining.jpg",
+      alt: "Casa Alpaca - Dining Area with Chess Set"
+    },
+    {
+      src: "/images/casa-alpaca-kitchen.jpg",
+      alt: "Casa Alpaca - Kitchen with Coffee Station"
+    },
+    {
+      src: "/images/casa-alpaca-patio.jpg",
+      alt: "Casa Alpaca - Outdoor Patio and Seating Area"
+    },
+    {
+      src: "/images/casa-alpaca-laundry.jpg",
+      alt: "Casa Alpaca - Laundry Room Facilities"
+    },
+    {
+      src: "/images/casa-alpaca-office.jpg",
+      alt: "Casa Alpaca - Workspace with Green Ambient Lighting"
+    }
+  ]
+
   return (
     <div className="min-h-screen py-12">
       <div className="container">
         {/* Property Header */}
         <div className="mb-8">
-          <h1 className="mb-2 text-4xl font-bold">Casa Alpaca</h1>
+          <div className="mb-2">
+            <Image
+              src="/images/6974955a-8165-45c3-9791-90fd02133fdd.png"
+              alt="Casa Alpaca Logo"
+              width={250}
+              height={60}
+              className="h-auto object-contain"
+              priority
+            />
+          </div>
           <div className="text-muted-foreground mb-4 flex items-center">
             <MapPin className="mr-1 size-4" />
             <span>Main Street, Anytown USA</span>
@@ -37,14 +87,9 @@ export default function PropertyPage() {
           </p>
         </div>
 
-        {/* Main Property Image */}
-        <div className="relative mb-8 aspect-[16/9] overflow-hidden rounded-lg">
-          <Image
-            src="/images/casa-alpaca-hero.jpg"
-            alt="Casa Alpaca - Front View"
-            fill
-            className="object-cover"
-          />
+        {/* Property Gallery */}
+        <div className="mb-8">
+          <PropertyGallery images={propertyImages} />
         </div>
 
         {/* Property Tabs */}

@@ -3,10 +3,13 @@
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent } from "@/components/ui/card"
-import { formatCurrency } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { ArrowRight, Calendar as CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
-import { useState } from "react"
+import { format, differenceInDays, isSameDay } from "date-fns"
+import { useState, useEffect } from "react"
+import { DateRange } from "react-day-picker"
+import { getAvailabilityAction } from "@/actions/calendar-actions"
+import { toast } from "@/components/ui/use-toast"
 
 interface BookingDateStepProps {
   checkIn: Date | null
@@ -21,169 +24,138 @@ export function BookingDateStep({
   onDateChange,
   onNext
 }: BookingDateStepProps) {
-  const [dateSelection, setDateSelection] = useState<"checkIn" | "checkOut">(
-    "checkIn"
-  )
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-  // Mock unavailable dates as an example
-  const disabledDates = [
-    new Date(2023, 7, 10),
-    new Date(2023, 7, 11),
-    new Date(2023, 7, 15),
-    new Date(2023, 7, 16),
-    new Date(2023, 7, 17)
-  ]
+  const [disabledDates, setDisabledDates] = useState<Date[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      if (dateSelection === "checkIn") {
-        onDateChange(date, null)
-        setDateSelection("checkOut")
-      } else {
-        // Make sure checkout is after checkin
-        if (checkIn && date < checkIn) {
-          onDateChange(date, checkIn)
+  // Fetch booked dates from both VRBO and Airbnb
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      setIsLoading(true)
+      try {
+        const { isSuccess, data, message } = await getAvailabilityAction()
+
+        if (isSuccess && data) {
+          // Create an array of disabled dates from all bookings
+          const bookedDates: Date[] = []
+
+          data.forEach(booking => {
+            const start = new Date(booking.start)
+            const end = new Date(booking.end)
+
+            // Add all dates between start and end (inclusive of start, exclusive of end)
+            let currentDate = new Date(start)
+            while (currentDate < end) {
+              bookedDates.push(new Date(currentDate))
+              currentDate.setDate(currentDate.getDate() + 1)
+            }
+          })
+
+          setDisabledDates(bookedDates)
         } else {
-          onDateChange(checkIn, date)
+          toast({
+            title: "Error",
+            description: message || "Failed to load availability data",
+            variant: "destructive"
+          })
         }
+      } catch (error) {
+        console.error("Error fetching availability:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load availability data",
+          variant: "destructive"
+        })
+      } finally {
+        setIsLoading(false)
       }
+    }
+
+    fetchAvailability()
+  }, [])
+
+  const handleSelect = (range: DateRange | undefined) => {
+    if (range?.from) {
+      onDateChange(range.from, range.to || null)
+    } else {
+      onDateChange(null, null)
     }
   }
 
-  const isDateSelectionValid = () => {
-    return checkIn && checkOut
+  // Custom modifiers for the calendar
+  const modifiers = {
+    disabled: [{ before: today }, ...disabledDates]
   }
 
-  // Calculate nights and basic price (just as a placeholder)
-  const nights =
-    checkIn && checkOut
-      ? Math.ceil(
-          (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
-        )
-      : 0
+  // Custom modifiers styles
+  const modifiersStyles = {
+    disabled: {
+      textDecoration: "line-through",
+      color: "gray"
+    }
+  }
 
-  const basePrice = nights * 19900 // $199 per night in cents
+  const numberOfNights =
+    checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0
+
+  const basePrice = 100 // Price per night in dollars
+  const totalPrice = numberOfNights * basePrice
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="mb-2 text-2xl font-semibold">Select Your Dates</h2>
-        <p className="text-muted-foreground">
-          Choose your check-in and check-out dates to check availability
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Select your dates
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Choose your check-in and check-out dates
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div>
-          <div className="mb-4 flex flex-col gap-4 sm:flex-row">
-            <Card
-              className={`flex-1 cursor-pointer ${dateSelection === "checkIn" ? "border-primary" : ""}`}
-              onClick={() => setDateSelection("checkIn")}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">Check-in</p>
-                    <p className="text-lg">
-                      {checkIn ? format(checkIn, "MMM d, yyyy") : "Select date"}
-                    </p>
-                  </div>
-                  <CalendarIcon className="text-muted-foreground size-5" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card
-              className={`flex-1 cursor-pointer ${dateSelection === "checkOut" ? "border-primary" : ""}`}
-              onClick={() => setDateSelection("checkOut")}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">Check-out</p>
-                    <p className="text-lg">
-                      {checkOut
-                        ? format(checkOut, "MMM d, yyyy")
-                        : "Select date"}
-                    </p>
-                  </div>
-                  <CalendarIcon className="text-muted-foreground size-5" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Calendar
-            mode="single"
-            selected={
-              dateSelection === "checkIn"
-                ? checkIn || undefined
-                : checkOut || undefined
-            }
-            onSelect={handleDateSelect}
-            disabled={[
-              { before: new Date() }, // Can't select dates in the past
-              ...disabledDates
-            ]}
-            className="rounded-md border p-3"
-          />
-        </div>
-
-        <div>
-          <div className="bg-muted/50 rounded-lg p-6">
-            <h3 className="mb-4 text-lg font-medium">Booking Summary</h3>
-
-            {isDateSelectionValid() ? (
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <div>
-                    <p className="font-medium">Check-in</p>
-                    <p className="text-muted-foreground">
-                      {format(checkIn!, "MMM d, yyyy")}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">Check-out</p>
-                    <p className="text-muted-foreground">
-                      {format(checkOut!, "MMM d, yyyy")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span>
-                      {nights} {nights === 1 ? "night" : "nights"}
-                    </span>
-                    <span className="font-medium">
-                      {formatCurrency(basePrice / 100)}
-                    </span>
-                  </div>
-                  <p className="text-muted-foreground text-xs">
-                    Base price before taxes and additional fees
-                  </p>
-                </div>
+      <div className="rounded-lg border p-4">
+        <Calendar
+          mode="range"
+          selected={{
+            from: checkIn || undefined,
+            to: checkOut || undefined
+          }}
+          onSelect={handleSelect}
+          numberOfMonths={2}
+          disabled={modifiers.disabled}
+          modifiers={modifiers}
+          modifiersStyles={modifiersStyles}
+          className={cn(
+            "w-full [&_.rdp-caption]:text-lg [&_.rdp-multiple_months]:space-x-4",
+            "[&_.rdp-day]:size-10 [&_.rdp-day]:text-sm",
+            "[&_.rdp-button:hover]:bg-accent [&_.rdp-button:focus]:bg-accent",
+            "[&_.rdp-nav_button]:size-8",
+            isLoading ? "pointer-events-none opacity-50" : ""
+          )}
+          footer={
+            isLoading ? (
+              <div className="text-muted-foreground py-2 text-center text-sm">
+                Loading availability...
               </div>
-            ) : (
-              <p className="text-muted-foreground">
-                Select both check-in and check-out dates to see a summary of
-                your booking
-              </p>
-            )}
-          </div>
-        </div>
+            ) : undefined
+          }
+        />
       </div>
 
-      <div className="flex justify-end">
-        <Button
-          onClick={onNext}
-          disabled={!isDateSelectionValid()}
-          className="flex items-center"
-        >
-          Continue
-          <ArrowRight className="ml-2 size-4" />
-        </Button>
-      </div>
+      {numberOfNights > 0 && (
+        <p className="text-muted-foreground text-sm">
+          Selected stay: {numberOfNights} night{numberOfNights === 1 ? "" : "s"}
+        </p>
+      )}
+
+      <Button
+        onClick={onNext}
+        disabled={!checkIn || !checkOut || isLoading}
+        className="w-full"
+      >
+        Continue to Guest Details
+      </Button>
     </div>
   )
 }

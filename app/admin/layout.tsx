@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { ReactNode } from "react"
+import Image from "next/image"
 
 export default async function AdminLayout({
   children
@@ -29,7 +30,16 @@ export default async function AdminLayout({
                 <ArrowLeft className="size-4" />
               </Button>
             </Link>
-            <h1 className="text-xl font-bold">Casa Alpaca Admin</h1>
+            <div className="flex items-center">
+              <Image
+                src="/images/6974955a-8165-45c3-9791-90fd02133fdd.png"
+                alt="Casa Alpaca Logo"
+                width={150}
+                height={40}
+                className="h-auto object-contain"
+              />
+              <span className="ml-2 font-semibold">Admin</span>
+            </div>
           </div>
         </div>
       </header>
