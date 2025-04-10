@@ -34,7 +34,7 @@ export default async function AdminLayout({
   return (
     <div className="bg-muted/30 min-h-screen">
       <header className="bg-background sticky top-0 z-30 border-b">
-        <div className="container flex h-16 items-center justify-between py-4">
+        <div className="container flex h-20 items-center justify-between py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
               <Button variant="outline" size="icon">
@@ -55,7 +55,7 @@ export default async function AdminLayout({
         </div>
       </header>
 
-      <div className="container pb-12 pt-24">
+      <div className="container pb-12 pt-16">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr]">
           <aside className="w-full md:w-[200px]">
             <AdminNav />
