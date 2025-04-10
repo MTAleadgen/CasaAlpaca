@@ -1,5 +1,3 @@
-"use server"
-
 import {
   Card,
   CardContent,
@@ -18,8 +16,9 @@ import { CalendarTokenGenerator } from "./_components/token-generator"
 import { CalendarImport } from "./_components/calendar-import"
 import { Suspense } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import type { Metadata } from "next"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Property Calendar | Casa Alpaca Admin",
   description: "Manage property availability and calendar synchronization"
 }
@@ -113,7 +112,7 @@ async function PropertyCalendarContent({
             Share this calendar URL with external platforms to publish your
             bookings.
           </p>
-          <CalendarTokenGenerator />
+          <CalendarTokenGenerator propertyId={propertyId} />
         </div>
 
         <div>
@@ -124,7 +123,7 @@ async function PropertyCalendarContent({
             Add calendar URLs from Airbnb, VRBO or other booking platforms to
             prevent double bookings.
           </p>
-          <CalendarImport />
+          <CalendarImport propertyId={propertyId} />
         </div>
       </div>
 
