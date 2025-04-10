@@ -34,6 +34,32 @@ export async function getPropertyAction(): Promise<ActionState<SelectProperty | 
 }
 
 /**
+ * Get all properties for a user
+ * 
+ * @param userId - The user ID
+ * @returns ActionState with the list of properties
+ */
+export async function getAllPropertiesAction(userId: string): Promise<ActionState<SelectProperty[]>> {
+  try {
+    // For admin users, we could eventually filter by their userId
+    // But right now, just get all properties as our system is designed for single property
+    const properties = await db.query.properties.findMany()
+
+    return {
+      isSuccess: true,
+      message: "Properties retrieved successfully",
+      data: properties
+    }
+  } catch (error) {
+    console.error("Error getting all properties:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to get properties"
+    }
+  }
+}
+
+/**
  * Get a property by its ID
  * 
  * @param id - The property ID
@@ -85,12 +111,14 @@ export async function updatePropertyAction(
     // like checking against an ADMIN_USER_ID environment variable
     // or checking a role/permission in the profiles table
     
+    const updateData = {
+      ...data,
+      updatedAt: new Date()
+    };
+    
     const [updatedProperty] = await db
       .update(propertiesTable)
-      .set({
-        ...data,
-        updatedAt: new Date()
-      })
+      .set(updateData)
       .where(eq(propertiesTable.id, id))
       .returning()
 

@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { Gift, Home, Settings } from "lucide-react"
+import { Gift, Home, MessageSquare, Settings } from "lucide-react"
 import Link from "next/link"
 
 export const metadata = {
@@ -55,6 +55,25 @@ export default function AdminDashboardPage() {
             <CardContent>
               <p className="text-muted-foreground text-sm">
                 Configure optional services that guests can add to their stay.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/admin/messaging" className="block">
+          <Card className="hover:border-primary h-full transition-all hover:shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center">
+                <MessageSquare className="mr-2 size-5" />
+                Messaging
+              </CardTitle>
+              <CardDescription>
+                Send and receive WhatsApp messages with guests
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Communicate with guests from anywhere using WhatsApp messaging.
               </p>
             </CardContent>
           </Card>

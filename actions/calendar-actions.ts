@@ -2,6 +2,10 @@
 
 import { ActionState } from "@/types"
 import ical from "node-ical"
+import { db } from "@/db/db"
+import { randomUUID } from "crypto"
+import { calendarSourcesTable, calendarsTable } from "@/db/schema"
+import { eq } from "drizzle-orm"
 
 interface BookedDate {
   id: string
@@ -9,6 +13,18 @@ interface BookedDate {
   end: Date
   summary: string
   source: "vrbo" | "airbnb"
+}
+
+interface CalendarToken {
+  token: string
+}
+
+interface CalendarSource {
+  id: string
+  userId: string
+  url: string
+  platform: string
+  createdAt: Date
 }
 
 // Constants for calendar URLs
@@ -125,6 +141,179 @@ export async function checkAvailabilityAction(
     return {
       isSuccess: false,
       message: "Failed to check availability"
+    }
+  }
+}
+
+// Generate a unique calendar token for the user
+export async function generateCalendarTokenAction(): Promise<ActionState<CalendarToken>> {
+  try {
+    const userId = "user_123" // In a real app, this would come from auth.userId()
+    const token = randomUUID()
+    
+    // Check if a calendar already exists for this user
+    const existingCalendar = await db.query.calendars.findFirst({
+      where: eq(calendarsTable.userId, userId)
+    })
+    
+    if (existingCalendar) {
+      // Update existing calendar token
+      await db
+        .update(calendarsTable)
+        .set({ token })
+        .where(eq(calendarsTable.userId, userId))
+    } else {
+      // Create new calendar token
+      await db.insert(calendarsTable).values({
+        userId,
+        token
+      })
+    }
+    
+    return {
+      isSuccess: true,
+      message: "Calendar token generated successfully",
+      data: { token }
+    }
+  } catch (error) {
+    console.error("Error generating calendar token:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to generate calendar token"
+    }
+  }
+}
+
+// Get the calendar token for the current user
+export async function getCalendarTokenAction(): Promise<ActionState<CalendarToken | null>> {
+  try {
+    const userId = "user_123" // In a real app, this would come from auth.userId()
+    
+    const calendar = await db.query.calendars.findFirst({
+      where: eq(calendarsTable.userId, userId)
+    })
+    
+    if (!calendar) {
+      return {
+        isSuccess: true,
+        message: "No calendar token found",
+        data: null
+      }
+    }
+    
+    return {
+      isSuccess: true,
+      message: "Calendar token retrieved successfully",
+      data: { token: calendar.token }
+    }
+  } catch (error) {
+    console.error("Error retrieving calendar token:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to retrieve calendar token"
+    }
+  }
+}
+
+// Add an external calendar source
+export async function addCalendarSourceAction(
+  url: string,
+  platform: string
+): Promise<ActionState<CalendarSource>> {
+  try {
+    const userId = "user_123" // In a real app, this would come from auth.userId()
+    
+    // Validate URL format
+    try {
+      new URL(url)
+    } catch (error) {
+      return {
+        isSuccess: false,
+        message: "Invalid URL format"
+      }
+    }
+    
+    // Check if this URL is already added
+    const existingSource = await db.query.calendarSources.findFirst({
+      where: eq(calendarSourcesTable.url, url)
+    })
+    
+    if (existingSource) {
+      return {
+        isSuccess: false,
+        message: "This calendar is already connected"
+      }
+    }
+    
+    // Insert new calendar source
+    const [newSource] = await db
+      .insert(calendarSourcesTable)
+      .values({
+        userId,
+        url,
+        platform
+      })
+      .returning()
+    
+    return {
+      isSuccess: true,
+      message: `${platform} calendar added successfully`,
+      data: newSource
+    }
+  } catch (error) {
+    console.error("Error adding calendar source:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to add calendar source"
+    }
+  }
+}
+
+// Remove an external calendar source
+export async function removeCalendarSourceAction(
+  id: string
+): Promise<ActionState<void>> {
+  try {
+    const userId = "user_123" // In a real app, this would come from auth.userId()
+    
+    // Delete the calendar source
+    await db
+      .delete(calendarSourcesTable)
+      .where(eq(calendarSourcesTable.id, id))
+    
+    return {
+      isSuccess: true,
+      message: "Calendar removed successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error removing calendar source:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to remove calendar source"
+    }
+  }
+}
+
+// Get all external calendar sources for the current user
+export async function getCalendarSourcesAction(): Promise<ActionState<CalendarSource[]>> {
+  try {
+    const userId = "user_123" // In a real app, this would come from auth.userId()
+    
+    const sources = await db.query.calendarSources.findMany({
+      where: eq(calendarSourcesTable.userId, userId)
+    })
+    
+    return {
+      isSuccess: true,
+      message: "Calendar sources retrieved successfully",
+      data: sources
+    }
+  } catch (error) {
+    console.error("Error retrieving calendar sources:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to retrieve calendar sources"
     }
   }
 } 

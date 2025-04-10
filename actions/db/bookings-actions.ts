@@ -9,7 +9,8 @@ import {
   extrasTable,
   InsertBooking,
   InsertBookingExtra,
-  SelectBooking
+  SelectBooking,
+  propertiesTable
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { and, eq, gt, inArray, lt, not, or, gte, lte, SQL } from "drizzle-orm"
@@ -17,6 +18,7 @@ import { auth } from "@clerk/nextjs/server"
 import { calculatePriceAction } from "./pricing-actions"
 import { dateRangesOverlap, formatDateToISODate } from "@/lib/utils"
 import { getFirstPropertyId } from "./availability-actions"
+import { sendBookingConfirmationAction } from "@/actions/booking-notifications"
 
 /**
  * Create a new booking request
@@ -30,6 +32,9 @@ export async function createBookingAction(
   extraIds: string[] = []
 ): Promise<ActionState<SelectBooking>> {
   try {
+    // Get the authenticated user
+    const { userId } = await auth()
+  
     // Verify that the dates are available
     const availabilityCheck = await checkAvailability(
       data.propertyId,
@@ -113,6 +118,37 @@ export async function createBookingAction(
       reason: `Booking #${newBooking.id.substring(0, 8)}`,
       source: "direct_booking"
     })
+    
+    // Send booking confirmation message if booking is created successfully
+    if (newBooking) {
+      try {
+        // Get the property name for the message
+        const property = await db.query.properties.findFirst({
+          where: eq(propertiesTable.id, data.propertyId)
+        })
+
+        // Extract the first name from the guest name
+        const guestFirstName = data.guestName.split(' ')[0]
+
+        // Send confirmation message
+        await sendBookingConfirmationAction(
+          userId || "", // Using the current authenticated user ID as the sender
+          {
+            guestFirstName,
+            guestPhoneNumber: data.guestPhone,
+            listingName: property?.name || "Casa Alpaca",
+            checkInDate: new Date(data.checkInDate),
+            checkOutDate: new Date(data.checkOutDate),
+            numberOfGuests: data.numGuests
+          }
+        )
+        // We don't throw errors here to not disrupt the booking creation
+        // Even if the message fails to send, the booking should still be created
+      } catch (error) {
+        console.error("Error sending booking confirmation:", error)
+        // Don't throw - we still want to return the booking
+      }
+    }
     
     return {
       isSuccess: true,

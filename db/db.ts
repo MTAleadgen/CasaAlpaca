@@ -4,14 +4,21 @@ Initializes the database connection and schema for the app.
 
 import {
   availabilityBlocksTable,
-  bookingExtrasTable,
   bookingsTable,
+  bookingExtrasTable,
   extrasTable,
   priceOverridesTable,
   pricingRulesTable,
   pricingSeasonsTable,
   profilesTable,
-  propertiesTable
+  propertiesTable,
+  propertyPhotosTable,
+  calendarsTable,
+  calendarSourcesTable,
+  messagesTable,
+  messageTemplatesTable,
+  propertyDetailsTable,
+  messageSchedulesTable
 } from "@/db/schema"
 import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
@@ -23,12 +30,19 @@ const schema = {
   profiles: profilesTable,
   extras: extrasTable,
   properties: propertiesTable,
+  propertyPhotos: propertyPhotosTable,
   bookings: bookingsTable,
   bookingExtras: bookingExtrasTable,
   availabilityBlocks: availabilityBlocksTable,
   pricingRules: pricingRulesTable,
   pricingSeasons: pricingSeasonsTable,
-  priceOverrides: priceOverridesTable
+  priceOverrides: priceOverridesTable,
+  calendars: calendarsTable,
+  calendarSources: calendarSourcesTable,
+  messages: messagesTable,
+  messageTemplates: messageTemplatesTable,
+  propertyDetails: propertyDetailsTable,
+  messageSchedules: messageSchedulesTable
 }
 
 const client = postgres(process.env.DATABASE_URL!)

@@ -1,5 +1,3 @@
-"use server"
-
 import {
   Card,
   CardContent,
@@ -9,22 +7,69 @@ import {
 } from "@/components/ui/card"
 import { getAvailabilityAction } from "@/actions/calendar-actions"
 import { format } from "date-fns"
+import { CalendarImport } from "./_components/calendar-import"
+import { CalendarTokenGenerator } from "./token-generator"
 
 export const metadata = {
   title: "Connected Calendars | Admin",
   description: "View connected calendars from Airbnb and VRBO"
 }
 
+interface BookedDate {
+  id: string
+  start: Date
+  end: Date
+  summary: string
+  source: "vrbo" | "airbnb"
+}
+
 export default async function ConnectedCalendarsPage() {
-  const { isSuccess, data: bookings, message } = await getAvailabilityAction()
+  let isSuccess = false
+  let bookings: BookedDate[] = []
+  let message = ""
+
+  try {
+    const result = await getAvailabilityAction()
+    isSuccess = result.isSuccess
+    bookings = result.data || []
+    message = result.message
+  } catch (error) {
+    console.error("Error fetching calendar data:", error)
+    message = "Failed to fetch calendar data"
+  }
 
   return (
-    <div>
-      <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">Connected Calendars</h1>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Calendar Synchronization
+        </h2>
         <p className="text-muted-foreground">
-          View synchronized calendar data from Airbnb and VRBO.
+          Manage two-way calendar synchronization with Airbnb, VRBO, and other
+          booking platforms.
         </p>
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-2">
+        <div>
+          <h3 className="mb-4 text-xl font-semibold">Export Your Calendar</h3>
+          <p className="text-muted-foreground mb-4">
+            Share this calendar URL with external platforms to publish your Casa
+            Alpaca bookings.
+          </p>
+          <CalendarTokenGenerator />
+        </div>
+
+        <div>
+          <h3 className="mb-4 text-xl font-semibold">
+            Import External Calendars
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            Add calendar URLs from Airbnb, VRBO or other booking platforms to
+            prevent double bookings.
+          </p>
+          <CalendarImport />
+        </div>
       </div>
 
       <div className="mt-6 grid gap-6">

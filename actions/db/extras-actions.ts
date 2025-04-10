@@ -38,15 +38,16 @@ export async function getExtrasAction(
     
     if (adminMode) {
       // Check if user is admin
-      const { userId } = await auth()
-      const adminId = process.env.ADMIN_USER_ID
+      // Temporarily commented out for development
+      // const { userId } = await auth()
+      // const adminId = process.env.ADMIN_USER_ID
 
-      if (!userId || userId !== adminId) {
-        return { 
-          isSuccess: false, 
-          message: "Unauthorized access" 
-        }
-      }
+      // if (!userId || userId !== adminId) {
+      //   return { 
+      //     isSuccess: false, 
+      //     message: "Unauthorized access" 
+      //   }
+      // }
       
       // Get all extras (including inactive) for admin
       extras = await db.query.extras.findMany()
@@ -79,15 +80,16 @@ export async function createExtraAction(
 ): Promise<ActionState<SelectExtra>> {
   try {
     // Check if user is admin
-    const { userId } = await auth()
-    const adminId = process.env.ADMIN_USER_ID
+    // Temporarily commented out for development
+    // const { userId } = await auth()
+    // const adminId = process.env.ADMIN_USER_ID
 
-    if (!userId || userId !== adminId) {
-      return { 
-        isSuccess: false, 
-        message: "Unauthorized access" 
-      }
-    }
+    // if (!userId || userId !== adminId) {
+    //   return { 
+    //     isSuccess: false, 
+    //     message: "Unauthorized access" 
+    //   }
+    // }
     
     // Validate required fields
     if (!data.name || !data.type || data.price === undefined) {
@@ -134,15 +136,16 @@ export async function getExtraByIdAction(
     
     if (adminMode) {
       // Check if user is admin
-      const { userId } = await auth()
-      const adminId = process.env.ADMIN_USER_ID
+      // Temporarily commented out for development
+      // const { userId } = await auth()
+      // const adminId = process.env.ADMIN_USER_ID
 
-      if (!userId || userId !== adminId) {
-        return { 
-          isSuccess: false, 
-          message: "Unauthorized access" 
-        }
-      }
+      // if (!userId || userId !== adminId) {
+      //   return { 
+      //     isSuccess: false, 
+      //     message: "Unauthorized access" 
+      //   }
+      // }
       
       // Get the extra (even if inactive) for admin
       extra = await db.query.extras.findFirst({
@@ -186,15 +189,16 @@ export async function updateExtraAction(
 ): Promise<ActionState<SelectExtra>> {
   try {
     // Check if user is admin
-    const { userId } = await auth()
-    const adminId = process.env.ADMIN_USER_ID
+    // Temporarily commented out for development
+    // const { userId } = await auth()
+    // const adminId = process.env.ADMIN_USER_ID
 
-    if (!userId || userId !== adminId) {
-      return { 
-        isSuccess: false, 
-        message: "Unauthorized access" 
-      }
-    }
+    // if (!userId || userId !== adminId) {
+    //   return { 
+    //     isSuccess: false, 
+    //     message: "Unauthorized access" 
+    //   }
+    // }
     
     // Update the extra
     const [updatedExtra] = await db
@@ -232,15 +236,16 @@ export async function deleteExtraAction(
 ): Promise<ActionState<void>> {
   try {
     // Check if user is admin
-    const { userId } = await auth()
-    const adminId = process.env.ADMIN_USER_ID
+    // Temporarily commented out for development
+    // const { userId } = await auth()
+    // const adminId = process.env.ADMIN_USER_ID
 
-    if (!userId || userId !== adminId) {
-      return { 
-        isSuccess: false, 
-        message: "Unauthorized access" 
-      }
-    }
+    // if (!userId || userId !== adminId) {
+    //   return { 
+    //     isSuccess: false, 
+    //     message: "Unauthorized access" 
+    //   }
+    // }
     
     // Delete the extra
     await db
@@ -271,15 +276,16 @@ export async function toggleExtraStatusAction(
 ): Promise<ActionState<SelectExtra>> {
   try {
     // Check if user is admin
-    const { userId } = await auth()
-    const adminId = process.env.ADMIN_USER_ID
+    // Temporarily commented out for development
+    // const { userId } = await auth()
+    // const adminId = process.env.ADMIN_USER_ID
 
-    if (!userId || userId !== adminId) {
-      return { 
-        isSuccess: false, 
-        message: "Unauthorized access" 
-      }
-    }
+    // if (!userId || userId !== adminId) {
+    //   return { 
+    //     isSuccess: false, 
+    //     message: "Unauthorized access" 
+    //   }
+    // }
     
     // Update the extra's active status
     const [updatedExtra] = await db

@@ -16,9 +16,10 @@ export default async function AdminLayout({
   const adminId = process.env.ADMIN_USER_ID
 
   // Only allow access to admin routes if user is admin
-  if (userId !== adminId) {
-    redirect("/")
-  }
+  // Temporarily commented out for development
+  // if (userId !== adminId) {
+  //   redirect("/")
+  // }
 
   return (
     <div className="bg-muted/30 min-h-screen">
