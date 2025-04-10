@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Home, LayoutDashboard, MessageSquare } from "lucide-react"
+import { Home, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -12,11 +12,6 @@ interface AdminNavItem {
 }
 
 const navItems: AdminNavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/admin",
-    icon: <LayoutDashboard className="mr-2 size-4" />
-  },
   {
     title: "Vacation Rental",
     href: "/admin/property",

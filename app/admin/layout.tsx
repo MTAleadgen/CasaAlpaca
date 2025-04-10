@@ -13,6 +13,16 @@ export default async function AdminLayout({
   children: ReactNode
 }) {
   const { userId } = await auth()
+
+  if (!userId) {
+    redirect("/sign-in")
+  }
+
+  // Redirect to property page if at root admin path
+  if (typeof window !== "undefined" && window.location.pathname === "/admin") {
+    redirect("/admin/property")
+  }
+
   const adminId = process.env.ADMIN_USER_ID
 
   // Only allow access to admin routes if user is admin
