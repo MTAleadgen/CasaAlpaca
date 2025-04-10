@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Gift, Home, LayoutDashboard, MessageSquare } from "lucide-react"
+import { Home, LayoutDashboard, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -21,11 +21,6 @@ const navItems: AdminNavItem[] = [
     title: "Vacation Rental",
     href: "/admin/property",
     icon: <Home className="mr-2 size-4" />
-  },
-  {
-    title: "Extras",
-    href: "/admin/extras",
-    icon: <Gift className="mr-2 size-4" />
   },
   {
     title: "Messaging",

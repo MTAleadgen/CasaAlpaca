@@ -48,9 +48,10 @@ type ExtraFormValues = z.infer<typeof extraFormSchema>
 
 interface ExtraFormProps {
   defaultValues?: SelectExtra
+  propertyId?: string
 }
 
-export function ExtraForm({ defaultValues }: ExtraFormProps) {
+export function ExtraForm({ defaultValues, propertyId }: ExtraFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const isEditing = !!defaultValues
@@ -102,7 +103,14 @@ export function ExtraForm({ defaultValues }: ExtraFormProps) {
             ? "Extra updated successfully"
             : "Extra created successfully"
         )
-        router.push("/admin/extras")
+
+        // Redirect based on context
+        if (propertyId) {
+          router.push(`/admin/property/extras?id=${propertyId}`)
+        } else {
+          router.push("/admin/extras")
+        }
+
         router.refresh()
       } else {
         toast.error(result.message)
@@ -254,36 +262,39 @@ export function ExtraForm({ defaultValues }: ExtraFormProps) {
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Active Status</FormLabel>
-                    <FormDescription>
-                      Determines if this extra is available for bookings
-                    </FormDescription>
-                  </div>
+                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Active</FormLabel>
+                    <FormDescription>
+                      Make this extra available to guests
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end">
               <Button
-                variant="outline"
-                type="button"
-                onClick={() => router.push("/admin/extras")}
+                type="submit"
+                disabled={isSubmitting}
+                className="min-w-[120px]"
               >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    {isEditing ? "Updating..." : "Creating..."}
+                  </>
+                ) : isEditing ? (
+                  "Update Extra"
+                ) : (
+                  "Create Extra"
                 )}
-                {isEditing ? "Update Extra" : "Create Extra"}
               </Button>
             </div>
           </form>

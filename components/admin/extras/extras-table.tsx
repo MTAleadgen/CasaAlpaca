@@ -24,9 +24,15 @@ import { toast } from "sonner"
 
 interface ExtrasTableProps {
   data: SelectExtra[]
+  propertyId?: string
+  propertySpecific?: boolean
 }
 
-export function ExtrasTable({ data }: ExtrasTableProps) {
+export function ExtrasTable({
+  data,
+  propertyId,
+  propertySpecific = false
+}: ExtrasTableProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [isToggling, setIsToggling] = useState<string | null>(null)
@@ -77,13 +83,28 @@ export function ExtrasTable({ data }: ExtrasTableProps) {
     }
   }
 
+  // Generate the correct path for links
+  const getEditPath = (id: string) => {
+    if (propertySpecific && propertyId) {
+      return `/admin/property/extras/${id}?propertyId=${propertyId}`
+    }
+    return `/admin/extras/${id}`
+  }
+
+  const getNewPath = () => {
+    if (propertySpecific && propertyId) {
+      return `/admin/property/extras/new?propertyId=${propertyId}`
+    }
+    return `/admin/extras/new`
+  }
+
   if (data.length === 0) {
     return (
       <div className="py-10 text-center">
         <p className="text-muted-foreground mb-4">
           No extras found. Create your first one to get started.
         </p>
-        <Link href="/admin/extras/new">
+        <Link href={getNewPath()}>
           <Button>Create Extra</Button>
         </Link>
       </div>
@@ -136,7 +157,7 @@ export function ExtrasTable({ data }: ExtrasTableProps) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end space-x-2">
-                  <Link href={`/admin/extras/${extra.id}`}>
+                  <Link href={getEditPath(extra.id)}>
                     <Button variant="outline" size="icon">
                       <Edit className="size-4" />
                     </Button>

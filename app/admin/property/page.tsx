@@ -13,7 +13,8 @@ import {
   CalendarRange,
   ImageIcon,
   InfoIcon,
-  PlusCircle
+  PlusCircle,
+  Gift
 } from "lucide-react"
 import { auth } from "@clerk/nextjs/server"
 
@@ -103,6 +104,16 @@ export default async function PropertyPage() {
                       >
                         <CalendarRange className="mr-2 size-4" />
                         Manage Calendar
+                      </Button>
+                    </Link>
+                    <Link href={`/admin/property/extras?id=${property.id}`}>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        size="sm"
+                      >
+                        <Gift className="mr-2 size-4" />
+                        Manage Extras
                       </Button>
                     </Link>
                   </div>
