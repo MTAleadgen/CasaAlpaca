@@ -55,7 +55,7 @@ export default async function AdminLayout({
         </div>
       </header>
 
-      <div className="container pb-12 pt-16">
+      <div className="container pb-12 pt-24">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr]">
           <aside className="w-full md:w-[200px]">
             <AdminNav />
