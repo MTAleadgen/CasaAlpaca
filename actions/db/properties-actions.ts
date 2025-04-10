@@ -7,11 +7,11 @@ import { eq } from "drizzle-orm"
 import { auth } from "@clerk/nextjs/server"
 
 /**
- * Get the property data (Since this is a single property website, we just get the first property)
+ * Get the first property (default property)
  * 
  * This is used on the public-facing pages to display property details
  * 
- * @returns ActionState with the property data
+ * @returns ActionState with the default property data
  */
 export async function getPropertyAction(): Promise<ActionState<SelectProperty | null>> {
   try {
@@ -41,8 +41,7 @@ export async function getPropertyAction(): Promise<ActionState<SelectProperty | 
  */
 export async function getAllPropertiesAction(userId: string): Promise<ActionState<SelectProperty[]>> {
   try {
-    // For admin users, we could eventually filter by their userId
-    // But right now, just get all properties as our system is designed for single property
+    // Get all properties in the system
     const properties = await db.query.properties.findMany()
 
     return {
@@ -144,7 +143,7 @@ export async function updatePropertyAction(
 }
 
 /**
- * Create a property (Admin only, normally only used for initial setup)
+ * Create a new property
  * 
  * @param data - The property data to create
  * @returns ActionState with the created property
@@ -163,20 +162,6 @@ export async function createPropertyAction(
       }
     }
     
-    // You might want to add more sophisticated admin checks here
-    
-    // First check if any property already exists
-    const existingProperties = await db.query.properties.findMany({
-      limit: 1
-    })
-    
-    if (existingProperties.length > 0) {
-      return {
-        isSuccess: false,
-        message: "A property already exists. This site is designed for a single property."
-      }
-    }
-    
     const [newProperty] = await db
       .insert(propertiesTable)
       .values(data)
@@ -192,6 +177,44 @@ export async function createPropertyAction(
     return {
       isSuccess: false,
       message: "Failed to create property"
+    }
+  }
+}
+
+/**
+ * Delete a property (Admin only)
+ * 
+ * @param id - The property ID
+ * @returns ActionState with the operation status
+ */
+export async function deletePropertyAction(
+  id: string
+): Promise<ActionState<void>> {
+  try {
+    // Get auth session to check for admin access
+    const { userId } = await auth()
+    
+    if (!userId) {
+      return {
+        isSuccess: false,
+        message: "Unauthorized"
+      }
+    }
+    
+    await db
+      .delete(propertiesTable)
+      .where(eq(propertiesTable.id, id))
+
+    return {
+      isSuccess: true,
+      message: "Property deleted successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error deleting property:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to delete property"
     }
   }
 } 

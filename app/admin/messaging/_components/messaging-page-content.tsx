@@ -5,7 +5,7 @@ import { getMessagesAction } from "@/actions/db/messages-actions"
 import { auth } from "@clerk/nextjs/server"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Settings, FileText, UserCog, Home } from "lucide-react"
+import { Settings, FileText, UserCog } from "lucide-react"
 
 export default async function MessagingPageContent() {
   const { userId } = await auth()
@@ -35,12 +35,6 @@ export default async function MessagingPageContent() {
             <Button variant="outline" size="sm">
               <FileText className="mr-2 size-4" />
               Message Templates
-            </Button>
-          </Link>
-          <Link href="/admin/messaging/property-variables">
-            <Button variant="outline" size="sm">
-              <Home className="mr-2 size-4" />
-              Property Variables
             </Button>
           </Link>
           <Link href="/admin/settings">
